@@ -1,0 +1,12 @@
+# Copy this file to config.pm and adapt it to your system settings
+package config;
+
+$DATABASE_HOST='localhost';
+$DATABASE_NAME='lqfb';
+$DATABASE_USER='user';
+$DATABASE_PASSWORD='password';
+
+$LQFB_API_KEY='xxxxxxxx'; # Enter your API key here
+# DANGER! Don't put a slash at the end of the URL
+$LQFB_ROOT='http://www.public-software-group.org/liquid_feedback_testing';
+
