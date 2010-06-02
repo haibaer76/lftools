@@ -10,3 +10,6 @@ $LQFB_API_KEY='xxxxxxxx'; # Enter your API key here
 # DANGER! Don't put a slash at the end of the URL
 $LQFB_ROOT='http://www.public-software-group.org/liquid_feedback_testing';
 
+$MAIL_SENDER = 'sender@example.com';
+$MAIL_RECIEVER = 'reciever@example.com';
+

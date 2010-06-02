@@ -14,4 +14,6 @@ CREATE TABLE t_migrations_performed(
 EOF
 
 ./migrate.sh
+echo Loading initial data from server...
+./sync_from_server.pl
 
