@@ -1,0 +1,37 @@
+This project is the begin of a collection of utilities which make use
+of the Liquid Feedback API to obtain information about changed and new
+issues or initiatives.
+
+All changes can be mailed to a single address at the moment.
+
+System Requirements
+===================
+
+To use these tools, you need the following software installed:
+1. Perl
+2. MySQL
+3. the CPAN Modules LWP::Simple, XML::EasyOBJ and Crypt::SSLeay
+
+Installation
+============
+1. Unpack the archive into a directory
+2. copy the file config.pm.sample to config.pm
+3. edit the file config.pm and adapt the variables to your system environment
+4. run the script install.sh
+
+Usage
+=====
+The main work is currently done with the script sync_from_server.pl
+
+Call this script with no arguments will fetch all new initiatives and issues
+from the LQFB-Server and synchronize the data with the local database
+
+You can add the argument "mail" to the script, e.g.
+./sync_from_server.pl mail
+which writes an email for each new or changed initiative/issue to the
+reciever, which is given in the variable $MAIL_RECIEVER in the file config.pm.
+It is intended that you put this call in the crontab of a unix machine and
+call this script every 15 minutes. The given email address can then be a
+mailing list or something similiar, so everybody who joins the mailing list
+will be informed about new issues or initiatives.
+
