@@ -76,5 +76,50 @@ Mit freunlichen Gruessen
 Dein LiquidFeedback-Service-Skript
 ));
 }
+
+sub mail_all_updates {my $updates = shift;
+	my $changedIssues = $updates->getChangedIssues();
+	my $changedInitiatives = $updates->getChangedInitiatives();
+	send_mail("Liquid Feedback -- Zusammenfassung",
+qq(Hallo,
+
+hier kommt die Zusammenfassung aller Updates im Liquid Feedback.
+
+).($updates->getNewIssues()->getSize()<=0?"":eval {
+		my $tmp = "Neu erstellte Themen:\n";
+		$tmp.= "--------------------:\n";
+		for (my $i=0;$i<$updates->getNewIssues()->getSize();$i++) {
+			$tmp.="$config::LQFB_ROOT/issue/show/".$updates->getNewIssues()->getAt($i).".html\n";
+		}
+		$tmp;
+}).(!(keys %$changedIssues)?"":eval {
+	my $tmp = "Diese Themen haben ihren Status geaendert:\n";
+	$tmp.=    "------------------------------------------\n";
+	foreach my $key (keys %$changedIssues) {
+		$tmp.= "Thema $key hat seinen Status auf $changedIssues->{$key}->{'newState'} aktualisiert.\n";
+	}
+	$tmp;
+}).($updates->getNewInitiatives()->getSize()<=0?"":eval {
+	my $tmp = "Neue Initiativen wurden angelegt:\n";
+	$tmp.=    "---------------------------------\n";
+	for (my $i=0;$i<$updates->getNewInitiatives()->getSize();$i++) {
+		my $ini = $updates->getNewInitiatives->getAt($i);
+		$tmp.=($i+1).". $ini->{'name'} (Zu Thema # $ini->{'issue_id'})\n";
+		$tmp.="$config::LQFB_ROOT/initiative/show/$ini->{'id'}.html\n\n";
+	}
+	$tmp;
+}).(!(keys %$changedInitiatives)?"":eval {
+	my $tmp = "Initiativen mit geaendertem Entwurfstext:\n";
+	$tmp.=    "-----------------------------------------\n";
+	foreach my $key (keys %$changedInitiatives) {
+		$tmp.="'$changedInitiatives->{$key}->{'name'}'\n";
+		$tmp.="$config::LQFB_ROOT/initiative/show/$key.html\n\n";
+	}
+	$tmp;
+}).qq(
+Mit freundlichen Gruessen
+Dein LiquidFeedback-Service-Skript
+));
+}
 1;
 

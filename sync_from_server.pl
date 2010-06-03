@@ -15,8 +15,8 @@ my $browser = LWP::UserAgent->new;
 my $xml_file = $browser->get($config::LQFB_ROOT."/api/initiative.html?key=$config::LQFB_API_KEY");
 my $xml_doc = new XML::EasyOBJ(-type => 'string', -param=>$xml_file->content);
 my $after_action = $ARGV[0];
-if ($after_action ne '' && $after_action ne 'mail') {
-	die("Usage: sync_from_server.pl [mail]");
+if ($after_action ne '' && $after_action ne 'mail' && $after_action ne 'summary') {
+	die("Usage: sync_from_server.pl [mail|summary]");
 }
 my $sthGetArea = Db::dbh->prepare(q(
 		SELECT * FROM t_areas WHERE id=?
@@ -82,6 +82,8 @@ if ($after_action eq 'mail') {
 	foreach my $key (keys(%$changedInitiatives)) {
 		MyMailer::mail_changed_initiative($key, $changedInitiatives->{$key});
 	}
+} elsif ($after_action eq 'summary') {
+	MyMailer::mail_all_updates($updates);
 }
 
 sub update_initiative { my ($initiative, $updates)=@_;
