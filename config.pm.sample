@@ -12,3 +12,5 @@ $LQFB_ROOT='https://www.public-software-group.org/liquid_feedback_testing';
 
 $MAIL_RECIEVER = 'reciever@example.com';
 
+$SIMPLE_CHECK_FILE = "$ENV{HOME}/.lftools_status";
+

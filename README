@@ -14,7 +14,11 @@ To use these tools, you need the following software installed:
 
 Installation
 ============
-1. Unpack the archive into a directory
+* WARNING *
+The installation script will drop any existing database with the name given in
+the file config.pm!
+1. Unpack the archive into a directory (or clone the source with git,
+which is the recommended way).
 2. copy the file config.pm.sample to config.pm
 3. edit the file config.pm and adapt the variables to your system environment
 4. run the script install.sh
@@ -34,4 +38,19 @@ It is intended that you put this call in the crontab of a unix machine and
 call this script every 15 minutes. The given email address can then be a
 mailing list or something similiar, so everybody who joins the mailing list
 will be informed about new issues or initiatives.
+
+How to deal with updates
+========================
+The tools will be updated in an irregular way. 
+
+1. To install an updated version
+of these tools you have the following options:
+a) If you got the source with git just move to the source directory and enter
+git pull
+into you command line.
+b) Download a new archive and unpack it to the same directory. Replace all chaned files
+2. After installing the updated version there have to be changes made in the
+database. This is done by a migration script. So open a command prompt, move to
+the source directory and enter
+./migrate.sh into the command line.
 

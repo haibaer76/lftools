@@ -28,6 +28,7 @@ sub initiativeTextUpdated {my ($obj, $id, $text, $name) = @_;
 	unless ($obj->{'changedInitiatives'}->{$id}) {
 		$obj->{'changedInitiatives'}->{$id} = {};
 	}
+	
 	$obj->{'changedInitiatives'}->{$id}->{'draft_text'} = $text;
 	$obj->{'changedInitiatives'}->{$id}->{'name'} = $name;
 }
