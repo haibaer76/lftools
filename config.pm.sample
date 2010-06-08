@@ -10,7 +10,7 @@ $LQFB_API_KEY='xxxxxxxx'; # Enter your API key here
 # DANGER! Don't put a slash at the end of the URL!
 $LQFB_ROOT='https://www.public-software-group.org/liquid_feedback_testing';
 
-$MAIL_RECIEVER = 'reciever@example.com';
-$MAIL_PROGRAM = 'mail -s "{subject}" -t {reciever}';
+$MAIL_RECEIVER = 'receiver@example.com';
+$MAIL_PROGRAM = 'mail -s "{subject}" -t {receiver}';
 
 $SIMPLE_CHECK_FILE = "$ENV{HOME}/.lftools_status";

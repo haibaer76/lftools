@@ -10,7 +10,7 @@ System Requirements
 To use these tools, you need the following software installed:
 1. Perl
 2. MySQL (if you want to store the stuff in a database)
-3. the CPAN Modules LWP::Simple, XML::EasyOBJ and Crypt::SSLeay
+3. the CPAN Modules LWP::Simple, XML::DOM, XML::EasyOBJ and Crypt::SSLeay
 
 Installation
 ============
@@ -33,7 +33,7 @@ from the LQFB-Server and synchronize the data with the local database
 You can add the argument "mail" to the script, e.g.
 ./sync_from_server.pl mail
 which writes an email for each new or changed initiative/issue to the
-reciever, which is given in the variable $MAIL_RECIEVER in the file config.pm.
+receiver, which is given in the variable $MAIL_RECEIVER in the file config.pm.
 It is intended that you put this call in the crontab of a unix machine and
 call this script every 15 minutes. The given email address can then be a
 mailing list or something similiar, so everybody who joins the mailing list

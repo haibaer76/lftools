@@ -6,7 +6,7 @@ use strict;
 sub send_mail {my ($subject, $body) = @_;
 	my $prog = $config::MAIL_PROGRAM;
 	$prog =~ s/\{subject\}/$subject/;
-	$prog =~ s/\{reciever\}/$config::MAIL_RECIEVER/;
+	$prog =~ s/\{receiver\}/$config::MAIL_RECEIVER/;
 	open(MAILPROG,"|$prog");
 	print MAILPROG $body;
 	close(MAILPROG);
