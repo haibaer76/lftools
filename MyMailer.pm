@@ -75,7 +75,7 @@ $changeHash->{'draft_text'}
 Zum Betrachten der neuen Initiative bitte hier klicken:
 $config::LQFB_ROOT/initiative/show/$initiative_id.html
 
-Mit freunlichen Gruessen
+Mit freundlichen Gruessen
 Dein LiquidFeedback-Service-Skript
 ));
 }
