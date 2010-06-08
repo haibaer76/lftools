@@ -4,7 +4,11 @@ require config;
 use strict;
 
 sub send_mail {my ($subject, $body) = @_;
-	open(MAILPROG,"|mail -s \"$subject\" -t $config::MAIL_RECIEVER");
+	my $prog = $config::MAIL_PROGRAM;
+	$prog =~ s/\{subject\}/$subject/;
+	$prog =~ s/\{reciever\}/$config::MAIL_RECIEVER/;
+	print "Mailprog = $prog\n";
+	open(MAILPROG,"|$prog");
 	print MAILPROG $body;
 	close(MAILPROG);
 }
