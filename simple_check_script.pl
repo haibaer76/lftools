@@ -42,7 +42,7 @@ my $updates = new CUpdateCollection();
 foreach my $initiative (@all_initiatives) {
 	check_for_update($initiative, $updates) if $lastRunTimestamp;
 	unless ($min_fixed) {
-		if ($initiative->issue_state->getString() eq 'finished') {
+		if ($initiative->issue_state->getString() eq 'finished' || $initiative->issue_state->getString() eq 'cancelled') {
 			$minid = int($initiative->id->getString());
 		} else {
 			$min_fixed = 1;
