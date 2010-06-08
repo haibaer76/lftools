@@ -9,7 +9,7 @@ System Requirements
 
 To use these tools, you need the following software installed:
 1. Perl
-2. MySQL
+2. MySQL (if you want to store the stuff in a database)
 3. the CPAN Modules LWP::Simple, XML::EasyOBJ and Crypt::SSLeay
 
 Installation
@@ -21,7 +21,7 @@ the file config.pm!
 which is the recommended way).
 2. copy the file config.pm.sample to config.pm
 3. edit the file config.pm and adapt the variables to your system environment
-4. run the script install.sh
+4. run the script install.sh (only required if database access is needed)
 
 Usage
 =====
@@ -38,6 +38,9 @@ It is intended that you put this call in the crontab of a unix machine and
 call this script every 15 minutes. The given email address can then be a
 mailing list or something similiar, so everybody who joins the mailing list
 will be informed about new issues or initiatives.
+
+Another script, simple_check_script.pl , is provided which does not need
+database access.
 
 How to deal with updates
 ========================
