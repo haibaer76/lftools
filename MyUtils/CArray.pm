@@ -34,5 +34,12 @@ sub getSize {my $obj=shift;
 	return $obj->{nof};
 }
 
+sub exists {my ($obj, $elem) = shift;
+	for (my $i=0;$i<$obj->{nof};$i++) {
+		return 1 if ($obj->{$i} == $elem);
+	}
+	return 0;
+}
+
 1;
 

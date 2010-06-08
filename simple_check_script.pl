@@ -55,10 +55,10 @@ if ($lastRunTimestamp) {
 		MyMailer::mail_all_updates($updates);
 	} else {
 		# TODO: Refac this CopyPaste shit to the CUpdateCollection class
-		my $newIssues = $updates->getNewIssues();
-		for (my $i=0;$i<$newIssues->getSize();$i++) {
-			MyMailer::mail_new_issue($newIssues->getAt($i));
-		}
+#		my $newIssues = $updates->getNewIssues();
+#		for (my $i=0;$i<$newIssues->getSize();$i++) {
+#			MyMailer::mail_new_issue($newIssues->getAt($i));
+#		}
 		my $newInitiatives = $updates->getNewInitiatives();
 		for (my $i=0;$i<$newInitiatives->getSize();$i++) {
 			MyMailer::mail_new_initiative($newInitiatives->getAt($i));

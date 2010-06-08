@@ -21,7 +21,7 @@ sub newIssueState {my ($obj, $issue_id, $newState)=@_;
 }
 
 sub newIssue {my ($obj, $issue_id)=@_;
-	$obj->{'newIssues'}->addElement($issue_id);
+	$obj->{'newIssues'}->addElement($issue_id) unless $obj->{'newIssues'}->exists($issue_id);
 }
 
 sub initiativeTextUpdated {my ($obj, $id, $text, $name) = @_;
