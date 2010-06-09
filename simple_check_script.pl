@@ -38,6 +38,7 @@ my @all_initiatives = $xml_doc->getElement('initiative');
 
 $minid = 0;
 my $min_fixed = 0;
+my $maxTimestamp = 0;
 my $updates = new CUpdateCollection();
 foreach my $initiative (@all_initiatives) {
 	check_for_update($initiative, $updates) if $lastRunTimestamp;
@@ -75,7 +76,7 @@ if ($lastRunTimestamp) {
 }
 
 open(STATUSFILE, ">$config::SIMPLE_CHECK_FILE") or die("Could not open Status File for writing!");
-print STATUSFILE time()."\n$minid\n";
+print STATUSFILE "$maxTimestamp\n$minid\n";
 close(STATUSFILE);
 
 sub check_for_update {my ($initiative, $updates)=@_;
@@ -100,6 +101,8 @@ sub check_for_update {my ($initiative, $updates)=@_;
 }
 
 sub asTimestamp {my ($initiative, $what)=@_;
-	int(str2time($initiative->$what->getString()));
+	my $ret = int(str2time($initiative->$what->getString()));
+	$maxTimestamp = $ret if ($ret > $maxTimestamp);
+	return $ret;
 }
 

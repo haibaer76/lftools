@@ -11,6 +11,8 @@ $LQFB_API_KEY='xxxxxxxx'; # Enter your API key here
 $LQFB_ROOT='https://www.public-software-group.org/liquid_feedback_testing';
 
 $MAIL_RECEIVER = 'receiver@example.com';
+$MAIL_SENDER = 'sender@example.com';
+$MAIL_USE_SMTP = 1;
 $MAIL_PROGRAM = 'mail -s "{subject}" -t {receiver}';
 
 $SIMPLE_CHECK_FILE = "$ENV{HOME}/.lftools_status";

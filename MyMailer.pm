@@ -2,14 +2,37 @@ package MyMailer;
 
 require config;
 use strict;
+use Net::SMTP;
 
 sub send_mail {my ($subject, $body) = @_;
-	my $prog = $config::MAIL_PROGRAM;
-	$prog =~ s/\{subject\}/$subject/;
-	$prog =~ s/\{receiver\}/$config::MAIL_RECEIVER/;
-	open(MAILPROG,"|$prog");
-	print MAILPROG $body;
-	close(MAILPROG);
+	if ($config::MAIL_USE_SMTP) {
+		  my ($subject, $body) = @_;
+			my $reci = $config::MAIL_RECEIVER;
+			my $absender = $config::MAIL_SENDER;
+			my $smtp = Net::SMTP->new('localhost',
+																Timeout => 60,
+																Hello => 'root@localhost'
+																);
+			$smtp->mail($absender);
+			$smtp->to($reci);
+			$smtp->data();
+			$smtp->datasend("To: $reci\n");
+			$smtp->datasend("From: LiquidFeedback Service<$absender>\n");
+			$smtp->datasend("Subject: $subject\n");
+			$smtp->datasend("\n");
+			$smtp->datasend($body);
+			$smtp->datasend("\n");
+			$smtp->dataend();
+			$smtp->quit;
+			
+	} else {
+		my $prog = $config::MAIL_PROGRAM;
+		$prog =~ s/\{subject\}/$subject/;
+		$prog =~ s/\{receiver\}/$config::MAIL_RECEIVER/;
+		open(MAILPROG,"|$prog");
+		print MAILPROG $body;
+		close(MAILPROG);
+	}
 }
 
 sub mail_new_issue {my $issue_id = shift;
