@@ -10,14 +10,20 @@ sub new {my $obj = shift;
 	$ref->{'newIssues'} = new CArray;
 	$ref->{'changedInitiatives'} = {};
 	$ref->{'newInitiatives'} = new CArray;
+	$ref->{'revokedInitiatives'} = new CArray;
 	return $ref;
 }
 
-sub newIssueState {my ($obj, $issue_id, $newState)=@_;
+sub newIssueState {my ($obj, $issue_id, $newState, $initiative_id, $initiative_name)=@_;
 	unless ($obj->{'changedIssues'}->{$issue_id}) {
 		$obj->{'changedIssues'}->{$issue_id}={};
+		$obj->{'changedIssues'}->{$issue_id}->{'initiatives'} = new CArray;
 	}
 	$obj->{'changedIssues'}->{$issue_id}->{'newState'} = $newState;
+	my $hlp = {};
+	$hlp->{'id'} = $initiative_id;
+	$hlp->{'name'} = $initiative_name;
+	$obj->{'changedIssues'}->{$issue_id}->{'initiatives'}->addElement($hlp);
 }
 
 sub newIssue {my ($obj, $issue_id)=@_;
@@ -42,6 +48,13 @@ sub newInitiative {my ($obj, $id, $issue_id, $name, $draft_text) = @_;
 	$obj->{'newInitiatives'}->addElement($h);
 }
 
+sub initiativeRevoked {my ($obj, $issue_id, $name)=@_;
+	my $h = {};
+	$h->{'issue_id'} = $issue_id;
+	$h->{'name'} = $name;
+	$obj->{'revokedInitiatives'}->addElement($h);
+}
+
 sub getNewIssues {my $obj = shift;
 	return $obj->{'newIssues'};
 }
@@ -50,11 +63,17 @@ sub getNewInitiatives {my $obj=shift;
 	return $obj->{'newInitiatives'};
 }
 
-sub getChangedIssues() {my $obj=shift;
+sub getChangedIssues {my $obj=shift;
 	return $obj->{'changedIssues'};
 }
 
-sub getChangedInitiatives() {my $obj=shift;
+sub getChangedInitiatives {my $obj=shift;
 	return $obj->{'changedInitiatives'};
 }
+
+sub getRevokedInitiatives {my $obj=shift;
+	return $obj->{'revokedInitiatives'};
+}
+
 1;
+

@@ -81,7 +81,34 @@ geaendert.
 Zum Betrachten des Themas bitte hier klicken:
 $config::LQFB_ROOT/issue/show/$issue_id.html
 
+Dieses Thema beinhaltet die folgenden Initiativen:
+).eval {
+	my $tmp='';
+	my $ary = $changeHash->{'initiatives'};
+	for (my $i=0;$i<$ary->getSize();$i++) {
+		$tmp.=($i+1).". ".$ary->getAt($i)->{'name'}."
+$config::LQFB_ROOT/initiative/show/".$ary->getAt($i)->{'id'}.".html
+";
+	}
+	$tmp;
+}.qq(
 Mit freundlichen Gruessen,
+Dein LiquidFeedback-Service-Skript
+));
+}
+
+sub mail_revoked_initiative {my $data = shift;
+	send_mail("Liquid Feedback -- Initiative wurde zurueckgezogen",
+qq(Hallo,
+
+Die zum Thema # $data->{'issue_id'} zugehoerige Initiative mit dem Namen
+$data->{'$name'}
+wurde vom Initiator zurueckgezogen.
+
+Zum Betrachten des Themas (und der alternativen Initiativen) hier klicken:
+$config::LQFB_ROOT/issue/show/$data->{'issue_id'}.html
+
+Mit freundlichen Gruessen
 Dein LiquidFeedback-Service-Skript
 ));
 }

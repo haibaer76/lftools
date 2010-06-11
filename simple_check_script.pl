@@ -72,6 +72,10 @@ if ($lastRunTimestamp) {
 		foreach my $key (keys(%$changedInitiatives)) {
 			MyMailer::mail_changed_initiative($key, $changedInitiatives->{$key});
 		}
+		my $revokedInitiatives = $updates->getRevokedInitiatives();
+		for (my $i=0;$i<$revokedInitiatives->getSize();$i++) {
+			MyMailer::mail_revoked_initiative($revokedInitiatives->getAt($i));
+		}
 	}
 }
 
@@ -81,6 +85,9 @@ close(STATUSFILE);
 
 sub check_for_update {my ($initiative, $updates)=@_;
 	my $issue_id = int($initiative->issue_id->getString());
+	my $draft_text = $initiative->current_draft_content->getString();
+	my $name = $initiative->name->getString();
+	my $id = int($initiative->id->getString());
 	if ($lastRunTimestamp < asTimestamp($initiative, 'issue_created')) {
 		$updates->newIssue($issue_id);
 	} elsif (
@@ -88,16 +95,20 @@ sub check_for_update {my ($initiative, $updates)=@_;
 		$lastRunTimestamp < asTimestamp($initiative, "issue_half_frozen") ||
 		$lastRunTimestamp < asTimestamp($initiative, "issue_fully_frozen") ||
 		$lastRunTimestamp < asTimestamp($initiative, 'issue_closed')) {
-		$updates->newIssueState($issue_id, $initiative->issue_state->getString());
+		$updates->newIssueState($issue_id, $initiative->issue_state->getString(), $id, $name) unless isRevoked($initiative);
 	}
-	my $draft_text = $initiative->current_draft_content->getString();
-	my $name = $initiative->name->getString();
-	my $id = int($initiative->id->getString());
 	if ($lastRunTimestamp < asTimestamp($initiative, 'created')) {
 		$updates->newInitiative($id, $issue_id, $name, $draft_text);
 	} elsif ($lastRunTimestamp < asTimestamp($initiative, 'current_draft_created')) {
 		$updates->initiativeTextUpdated($id, $draft_text, $name);
 	}
+	if ($lastRunTimestamp < asTimestamp($initiative, 'revoked')) {
+		$updates->initiativeRevoked($issue_id, $name);
+	}
+}
+
+sub isRevoked {my ($initiative) = @_;
+	(int(str2time($initiative->revoked->getString()))>0);
 }
 
 sub asTimestamp {my ($initiative, $what)=@_;
