@@ -14,7 +14,7 @@ sub new {my $obj = shift;
 	return $ref;
 }
 
-sub newIssueState {my ($obj, $issue_id, $newState, $initiative_id, $initiative_name)=@_;
+sub newIssueState {my ($obj, $issue_id, $newState, $initiative_id, $initiative_name, $ini_discussion_url)=@_;
 	unless ($obj->{'changedIssues'}->{$issue_id}) {
 		$obj->{'changedIssues'}->{$issue_id}={};
 		$obj->{'changedIssues'}->{$issue_id}->{'initiatives'} = new CArray;
@@ -23,6 +23,7 @@ sub newIssueState {my ($obj, $issue_id, $newState, $initiative_id, $initiative_n
 	my $hlp = {};
 	$hlp->{'id'} = $initiative_id;
 	$hlp->{'name'} = $initiative_name;
+	$hlp->{'discussion_url'} = $ini_discussion_url;
 	$obj->{'changedIssues'}->{$issue_id}->{'initiatives'}->addElement($hlp);
 }
 
@@ -39,12 +40,13 @@ sub initiativeTextUpdated {my ($obj, $id, $text, $name) = @_;
 	$obj->{'changedInitiatives'}->{$id}->{'name'} = $name;
 }
 
-sub newInitiative {my ($obj, $id, $issue_id, $name, $draft_text) = @_;
+sub newInitiative {my ($obj, $id, $issue_id, $name, $draft_text, $discussion_url) = @_;
 	my $h = {};
 	$h->{'id'} = $id;
 	$h->{'issue_id'} = $issue_id;
 	$h->{'name'} = $name;
 	$h->{'draft_text'} = $draft_text;
+	$h->{'discussion_url'} = $discussion_url;
 	$obj->{'newInitiatives'}->addElement($h);
 }
 

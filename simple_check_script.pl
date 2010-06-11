@@ -16,6 +16,7 @@ use encoding 'utf8';
 use LWP::UserAgent;
 use XML::EasyOBJ;
 use CUpdateCollection;
+use CInitiative;
 
 my $lastRunTimestamp=undef;
 my $minid = 0;
@@ -40,7 +41,8 @@ $minid = 0;
 my $min_fixed = 0;
 my $maxTimestamp = 0;
 my $updates = new CUpdateCollection();
-foreach my $initiative (@all_initiatives) {
+foreach (@all_initiatives) {
+	my $initiative = new CInitiative($_);
 	check_for_update($initiative, $updates) if $lastRunTimestamp;
 	unless ($min_fixed) {
 		if ($initiative->issue_state->getString() eq 'finished' || $initiative->issue_state->getString() eq 'cancelled') {
@@ -98,7 +100,7 @@ sub check_for_update {my ($initiative, $updates)=@_;
 		$updates->newIssueState($issue_id, $initiative->issue_state->getString(), $id, $name) unless isRevoked($initiative);
 	}
 	if ($lastRunTimestamp < asTimestamp($initiative, 'created')) {
-		$updates->newInitiative($id, $issue_id, $name, $draft_text);
+		$updates->newInitiative($id, $issue_id, $name, $draft_text, $initiative->discussion_url->getString());
 	} elsif ($lastRunTimestamp < asTimestamp($initiative, 'current_draft_created')) {
 		$updates->initiativeTextUpdated($id, $draft_text, $name);
 	}

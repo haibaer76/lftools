@@ -61,7 +61,11 @@ $initiativeHash->{'draft_text'}
 
 Zum Betrachten der Initiative hier klicken:
 $config::LQFB_ROOT/initiative/show/$initiativeHash->{'id'}.html
-
+).($initiativeHash->{'discussion_url'} eq ''?''
+:qq(
+Diskussion zur Initiative unter
+$initiativeHash->{'discussion_url'}
+)).qq(
 Zum Betrachten des Themas hier klicken:
 $config::LQFB_ROOT/issue/show/$initiativeHash->{'issue_id'}.html
 
@@ -102,7 +106,7 @@ sub mail_revoked_initiative {my $data = shift;
 qq(Hallo,
 
 Die zum Thema # $data->{'issue_id'} zugehoerige Initiative mit dem Namen
-$data->{'$name'}
+$data->{'name'}
 wurde vom Initiator zurueckgezogen.
 
 Zum Betrachten des Themas (und der alternativen Initiativen) hier klicken:
