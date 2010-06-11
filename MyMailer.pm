@@ -169,6 +169,14 @@ hier kommt die Zusammenfassung aller Updates im Liquid Feedback.
 		$tmp.="$config::LQFB_ROOT/initiative/show/$key.html\n\n";
 	}
 	$tmp;
+}).($updates->getRevokedInitiatives()->getSize()<=0?"":eval {
+	my $tmp = "Folgende Initiativen wurden zurueckgezogen:\n";
+	$tmp.=    "-------------------------------------------\n";
+	for(my $i=0;$i<$updates->getRevokedInitiatives()->getSize();$i++) {
+		my $ini = $updates->getRevokedInitiatives->getAt($i);
+		$tmp.=($i+1).". $ini->{'name'} (Zu Thema # $ini->{'issue_id'})\n";
+	}
+	$tmp;
 }).qq(
 Mit freundlichen Gruessen
 Dein LiquidFeedback-Service-Skript
