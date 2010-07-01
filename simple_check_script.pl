@@ -9,7 +9,6 @@
 # add the parameter 'summary' if you want only a summary mail
 
 use config;
-use Date::Parse;
 use strict;
 use MyMailer;
 use encoding 'utf8';
@@ -43,10 +42,10 @@ my $maxTimestamp = 0;
 my $updates = new CUpdateCollection();
 foreach (@all_initiatives) {
 	my $initiative = new CInitiative($_);
-	check_for_update($initiative, $updates) if $lastRunTimestamp;
+	$initiative->check_lr_updates($lastRunTimestamp, $updates, \$maxTimestamp) if $lastRunTimestamp;
 	unless ($min_fixed) {
-		if ($initiative->issue_state->getString() eq 'finished' || $initiative->issue_state->getString() eq 'cancelled') {
-			$minid = int($initiative->id->getString());
+		if ($initiative->getIssueState() eq 'finished' || $initiative->getIssueState() eq 'cancelled') {
+			$minid = int($initiative->getId());
 		} else {
 			$min_fixed = 1;
 		}
@@ -57,65 +56,9 @@ if ($lastRunTimestamp) {
 	if ($after_action eq 'summary') {
 		MyMailer::mail_all_updates($updates);
 	} else {
-		# TODO: Refac this CopyPaste shit to the CUpdateCollection class
-#		my $newIssues = $updates->getNewIssues();
-#		for (my $i=0;$i<$newIssues->getSize();$i++) {
-#			MyMailer::mail_new_issue($newIssues->getAt($i));
-#		}
-		my $newInitiatives = $updates->getNewInitiatives();
-		for (my $i=0;$i<$newInitiatives->getSize();$i++) {
-			MyMailer::mail_new_initiative($newInitiatives->getAt($i));
-		}
-		my $changedIssues = $updates->getChangedIssues();
-		foreach my $key (keys(%$changedIssues)) {
-			MyMailer::mail_changed_issue($key, $changedIssues->{$key});
-		}
-		my $changedInitiatives = $updates->getChangedInitiatives();
-		foreach my $key (keys(%$changedInitiatives)) {
-			MyMailer::mail_changed_initiative($key, $changedInitiatives->{$key});
-		}
-		my $revokedInitiatives = $updates->getRevokedInitiatives();
-		for (my $i=0;$i<$revokedInitiatives->getSize();$i++) {
-			MyMailer::mail_revoked_initiative($revokedInitiatives->getAt($i));
-		}
+		MyMailer::mail_single_updates($updates);
 	}
 }
-
 open(STATUSFILE, ">$config::SIMPLE_CHECK_FILE") or die("Could not open Status File for writing!");
 print STATUSFILE "$maxTimestamp\n$minid\n";
 close(STATUSFILE);
-
-sub check_for_update {my ($initiative, $updates)=@_;
-	my $issue_id = int($initiative->issue_id->getString());
-	my $draft_text = $initiative->current_draft_content->getString();
-	my $name = $initiative->name->getString();
-	my $id = int($initiative->id->getString());
-	if ($lastRunTimestamp < asTimestamp($initiative, 'issue_created')) {
-		$updates->newIssue($issue_id);
-	} elsif (
-		$lastRunTimestamp < asTimestamp($initiative, "issue_accepted") ||
-		$lastRunTimestamp < asTimestamp($initiative, "issue_half_frozen") ||
-		$lastRunTimestamp < asTimestamp($initiative, "issue_fully_frozen") ||
-		$lastRunTimestamp < asTimestamp($initiative, 'issue_closed')) {
-		$updates->newIssueState($issue_id, $initiative->issue_state->getString(), $id, $name) unless isRevoked($initiative);
-	}
-	if ($lastRunTimestamp < asTimestamp($initiative, 'created')) {
-		$updates->newInitiative($id, $issue_id, $name, $draft_text, $initiative->discussion_url->getString());
-	} elsif ($lastRunTimestamp < asTimestamp($initiative, 'current_draft_created')) {
-		$updates->initiativeTextUpdated($id, $draft_text, $name);
-	}
-	if ($lastRunTimestamp < asTimestamp($initiative, 'revoked')) {
-		$updates->initiativeRevoked($issue_id, $name);
-	}
-}
-
-sub isRevoked {my ($initiative) = @_;
-	(int(str2time($initiative->revoked->getString()))>0);
-}
-
-sub asTimestamp {my ($initiative, $what)=@_;
-	my $ret = int(str2time($initiative->$what->getString()));
-	$maxTimestamp = $ret if ($ret > $maxTimestamp);
-	return $ret;
-}
-

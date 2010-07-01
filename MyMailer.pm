@@ -48,26 +48,26 @@ Dein LiquidFeedback-Service-Skript
 ));
 }
 
-sub mail_new_initiative {my $initiativeHash = shift;
+sub mail_new_initiative {my $initiative = shift;
 	send_mail("Neue Initiative in Liquid Feedback",
 qq(Hallo,
 
-es wurde eine neue Initative im Thema # $initiativeHash->{'issue_id'} erzeugt.
+es wurde eine neue Initative im Thema # ).$initiative->getIssueId().qq( erzeugt.
 
-Name der Initiative: $initiativeHash->{'name'}
+Name der Initiative: ).$initiative->getName().qq(
 
 Entwurfstext:
-$initiativeHash->{'draft_text'}
+).$initiative->getDraftText().qq(
 
 Zum Betrachten der Initiative hier klicken:
-$config::LQFB_ROOT/initiative/show/$initiativeHash->{'id'}.html
-).($initiativeHash->{'discussion_url'} eq ''?''
+$config::LQFB_ROOT/initiative/show/).$initiative->getId().qq(.html
+).(!$initiative->hasDiscussion() ? ''
 :qq(
 Diskussion zur Initiative unter
-$initiativeHash->{'discussion_url'}
+).$initiative->getDiscussionUrl().qq(
 )).qq(
 Zum Betrachten des Themas hier klicken:
-$config::LQFB_ROOT/issue/show/$initiativeHash->{'issue_id'}.html
+$config::LQFB_ROOT/issue/show/).$initiative->getIssueId().qq(.html
 
 Mit freundlichen Gruessen,
 Dein LiquidFeedback-Service-Skript
@@ -75,11 +75,11 @@ Dein LiquidFeedback-Service-Skript
 
 }
 
-sub mail_changed_issue {my ($issue_id, $changeHash)=@_;
+sub mail_changed_issue {my ($issue_id, $hash)=@_;
 	send_mail("Liquid Feedback -- Thema neuer Status",
 qq(Hallo,
 
-Beim Thema # $issue_id hat sich der Status auf $changeHash->{'newState'}
+Beim Thema # $issue_id hat sich der Status auf $hash->{'newState'}
 geaendert.
 
 Zum Betrachten des Themas bitte hier klicken:
@@ -88,10 +88,10 @@ $config::LQFB_ROOT/issue/show/$issue_id.html
 Dieses Thema beinhaltet die folgenden Initiativen:
 ).eval {
 	my $tmp='';
-	my $ary = $changeHash->{'initiatives'};
+	my $ary = $hash->{'initiatives'};
 	for (my $i=0;$i<$ary->getSize();$i++) {
-		$tmp.=($i+1).". ".$ary->getAt($i)->{'name'}."
-$config::LQFB_ROOT/initiative/show/".$ary->getAt($i)->{'id'}.".html
+		$tmp.=($i+1).". ".$ary->getAt($i)->getName()."
+$config::LQFB_ROOT/initiative/show/".$ary->getAt($i)->getId().".html
 ";
 	}
 	$tmp;
@@ -101,33 +101,33 @@ Dein LiquidFeedback-Service-Skript
 ));
 }
 
-sub mail_revoked_initiative {my $data = shift;
+sub mail_revoked_initiative {my $initiative = shift;
 	send_mail("Liquid Feedback -- Initiative wurde zurueckgezogen",
 qq(Hallo,
 
-Die zum Thema # $data->{'issue_id'} zugehoerige Initiative mit dem Namen
-$data->{'name'}
+Die zum Thema # ).$initiative->getIssueId().qq( zugehoerige Initiative mit dem Namen
+).$initiative->getName().qq(
 wurde vom Initiator zurueckgezogen.
 
 Zum Betrachten des Themas (und der alternativen Initiativen) hier klicken:
-$config::LQFB_ROOT/issue/show/$data->{'issue_id'}.html
+$config::LQFB_ROOT/issue/show/).$initiative->getIssueId().qq(.html
 
 Mit freundlichen Gruessen
 Dein LiquidFeedback-Service-Skript
 ));
 }
 
-sub mail_changed_initiative {my ($initiative_id, $changeHash)=@_;
+sub mail_changed_initiative {my $initiative = shift;
 	send_mail("Liquid Feedback -- Initiative wurde geaendert",
 qq(Hallo,
 
 Der Entwurfstext der Initiative
-$changeHash->{'name'}
+).$initiative->getName().qq(
 hat wurde vom Initiator bearbeitet. Der neue Entwurfstext lautet:
-$changeHash->{'draft_text'}
+).$initiative->getDraftText().qq(
 
 Zum Betrachten der neuen Initiative bitte hier klicken:
-$config::LQFB_ROOT/initiative/show/$initiative_id.html
+$config::LQFB_ROOT/initiative/show/).$initiative->getId().qq(.html
 
 Mit freundlichen Gruessen
 Dein LiquidFeedback-Service-Skript
@@ -186,5 +186,24 @@ Mit freundlichen Gruessen
 Dein LiquidFeedback-Service-Skript
 ));
 }
+
+sub mail_single_updates {my $updates=shift;
+	for(my $i=0;$i<$updates->getNewInitiatives()->getSize();$i++) {
+		my $ini = $updates->getNewInitiatives()->getAt($i);
+		mail_new_initiative($ini);
+	}
+	my $changedIssues = $updates->getChangedIssues();
+	for my $key (keys(%$changedIssues)) {
+		mail_changed_issue($key, $changedIssues->{$key});
+	}
+	for(my $i=0;$i<$updates->getChangedInitiatives()->getSize();$i++) {
+		my $ini = $updates->getChangedInitiatives()->getAt($i);
+		mail_changed_initiative($ini);
+	}
+	for(my $i=0;$i<$updates->getRevokedInitiatives()->getSize();$i++) {
+		mail_revoked_initiative($updates->getRevokedInitiatives()->getAt($i));
+	}
+}
+
 1;
 
