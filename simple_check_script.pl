@@ -16,6 +16,7 @@ use LWP::UserAgent;
 use XML::EasyOBJ;
 use CUpdateCollection;
 use CInitiative;
+use MyUtils::CArray;
 
 my $lastRunTimestamp=undef;
 my $minid = 0;
@@ -33,8 +34,12 @@ if ($after_action ne '' && $after_action ne 'summary') {
 
 my $browser = LWP::UserAgent->new;
 my $xml_file = $browser->get("$config::LQFB_ROOT/api/initiative.html?key=$config::LQFB_API_KEY&min_id=$minid");
+open (BLUBB, ">affe.xml");
+print BLUBB $xml_file->content;
+close(BLUBB);
 my $xml_doc = new XML::EasyOBJ(-type => 'string', -param=>$xml_file->content);
 my @all_initiatives = $xml_doc->getElement('initiative');
+my $parsed_initiatives = new CArray;
 
 $minid = 0;
 my $min_fixed = 0;
@@ -50,6 +55,7 @@ foreach (@all_initiatives) {
 			$min_fixed = 1;
 		}
 	}
+	$parsed_initiatives->addElement($initiative);
 }
 
 if ($lastRunTimestamp) {
@@ -59,6 +65,10 @@ if ($lastRunTimestamp) {
 		MyMailer::mail_single_updates($updates);
 	}
 }
+
+for (my $i=0;$i<$parsed_initiatives->getSize();$i++) {
+	$parsed_initiatives->getAt($i)->save();
+}
 open(STATUSFILE, ">$config::SIMPLE_CHECK_FILE") or die("Could not open Status File for writing!");
-print STATUSFILE "$maxTimestamp\n$minid\n";
+print STATUSFILE  "$maxTimestamp\n$minid\n";
 close(STATUSFILE);

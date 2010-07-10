@@ -3,6 +3,8 @@ package CInitiative;
 use Date::Parse;
 use CArea;
 use config;
+use encoding 'utf8';
+use Encode;
 use strict;
 
 sub new {my ($obj, $xml, $use_db)=@_;
@@ -118,5 +120,23 @@ sub check_lr_updates {my ($obj, $lastRunTimestamp, $updates, $max)=@_;
 	}
 }
 
+sub save {my $obj = shift;
+	system('mkdir', '-p', $config::DRAFT_TEXT_DIR);
+	open(OUTFILE, ">:utf8", $config::DRAFT_TEXT_DIR."/".$obj->getId());
+	print OUTFILE $obj->getDraftText();
+	close(OUTFILE);
+}
+
+sub getDiff {my $obj = shift;
+	my $tmpfile = qx(mktemp);
+	open(TMPFILE, ">:utf8", $tmpfile);
+	print TMPFILE $obj->getDraftText();
+	close(TMPFILE);
+	open(my $DIFFOUT, "-|:utf8", 'diff', $tmpfile, $config::DRAFT_TEXT_DIR.'/'.$obj->getId());
+	my $diff = join('',<$DIFFOUT>);
+	close($DIFFOUT);
+	unlink($tmpfile);
+	$diff;
+}
 1;
 

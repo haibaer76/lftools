@@ -1,6 +1,7 @@
 package MyMailer;
 
 require config;
+use encoding 'utf8';
 use strict;
 use Net::SMTP;
 
@@ -37,7 +38,7 @@ sub send_mail {my ($subject, $body) = @_;
 				push @args, $arg;
 			}
 		}
-		open my $MAILPROG, "|-", $config::MAIL_PROGRAM, @args or die "Cannot open $config::MAIL_PROGRAM";
+		open my $MAILPROG, "|-:utf8", $config::MAIL_PROGRAM, @args or die "Cannot open $config::MAIL_PROGRAM";
 		print $MAILPROG $body;
 		my $result = close($MAILPROG);
 	}
@@ -144,7 +145,14 @@ qq(Hallo,
 
 Der Entwurfstext der Initiative
 ).$initiative->getName().qq(
-hat wurde vom Initiator bearbeitet. Der neue Entwurfstext lautet:
+hat wurde vom Initiator bearbeitet. 
+
+-----------------------------------------------------------
+Diff des neuen Entwurfs:
+).$initiative->getDiff().qq(
+
+-----------------------------------------------------------
+Der neue Entwurfstext lautet:
 ).$initiative->getDraftText().qq(
 
 Zum Betrachten der neuen Initiative bitte hier klicken:

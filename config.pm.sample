@@ -18,5 +18,7 @@ $MAIL_PROGRAM = 'mail';
 
 $SIMPLE_CHECK_FILE = "$ENV{HOME}/.lftools_status";
 
+# The directory where all Draft texts are stored to determine
+# diffs between the current loaded draft and the last draft
 $DRAFT_TEXT_DIR = "$ENV{HOME}/.lftools_drafts";
 
