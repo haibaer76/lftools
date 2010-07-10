@@ -2,6 +2,7 @@ package CInitiative;
 
 use Date::Parse;
 use CArea;
+use config;
 use strict;
 
 sub new {my ($obj, $xml, $use_db)=@_;

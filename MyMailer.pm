@@ -26,12 +26,20 @@ sub send_mail {my ($subject, $body) = @_;
 			$smtp->quit;
 			
 	} else {
-		my $prog = $config::MAIL_PROGRAM;
-		$prog =~ s/\{subject\}/$subject/;
-		$prog =~ s/\{receiver\}/$config::MAIL_RECEIVER/;
-		open(MAILPROG,"|$prog");
-		print MAILPROG $body;
-		close(MAILPROG);
+		my @args = ();
+		foreach(@config::MAIL_PROGRAM_ARGS) {
+			my $arg = $_;
+			if ($arg eq '{subject}') {
+				push @args, $subject;
+			} elsif ($arg eq '{receiver}') {
+				push @args, $config::MAIL_RECEIVER;
+			} else {
+				push @args, $arg;
+			}
+		}
+		open my $MAILPROG, "|-", $config::MAIL_PROGRAM, @args or die "Cannot open $config::MAIL_PROGRAM";
+		print $MAILPROG $body;
+		my $result = close($MAILPROG);
 	}
 }
 
@@ -49,11 +57,12 @@ Dein LiquidFeedback-Service-Skript
 }
 
 sub mail_new_initiative {my $initiative = shift;
-	send_mail("Neue Initiative in Liquid Feedback",
+	send_mail("[LF TB ".$initiative->getArea()->getName()."] Neue Initiative im Thema #".$initiative->getIssueId().' (+'.$initiative->getId().': '.$initiative->getName().')',
 qq(Hallo,
 
-es wurde eine neue Initative im Thema # ).$initiative->getIssueId().qq( erzeugt.
+es wurde eine neue Initative im Thema #).$initiative->getIssueId().qq( erzeugt.
 
+Id der Initiative: +).$initiative->getId().qq(
 Name der Initiative: ).$initiative->getName().qq(
 
 Entwurfstext:
@@ -76,10 +85,22 @@ Dein LiquidFeedback-Service-Skript
 }
 
 sub mail_changed_issue {my ($issue_id, $hash)=@_;
-	send_mail("Liquid Feedback -- Thema neuer Status",
+	my $whathappened = "";
+	if ($hash->{'newState'} eq "frozen") {
+		$whathappened = "Thema #$issue_id eingefroren";
+	} elsif ($hash->{'newState'} eq 'accepted') {
+		$whathappened = "Thema #$issue_id akzeptiert";
+	} elsif ($hash->{'newState'} eq 'closed') {
+		$whathappened = "Thema #$issue_id abgeschlossen";
+	} elsif ($hash->{'newState'} eq 'voting') {
+		$whathappened = "Abstimmung in Thema #$issue_id hat begonnen";
+	} else {
+		$whathappened = "Status in Thema #$issue_id geaendert";
+	}
+	send_mail("[LF TB ".$hash->{'initiatives'}->getAt(0)->getArea()->getName()." ] $whathappened",
 qq(Hallo,
 
-Beim Thema # $issue_id hat sich der Status auf $hash->{'newState'}
+Beim Thema #$issue_id hat sich der Status auf $hash->{'newState'}
 geaendert.
 
 Zum Betrachten des Themas bitte hier klicken:
@@ -90,7 +111,7 @@ Dieses Thema beinhaltet die folgenden Initiativen:
 	my $tmp='';
 	my $ary = $hash->{'initiatives'};
 	for (my $i=0;$i<$ary->getSize();$i++) {
-		$tmp.=($i+1).". ".$ary->getAt($i)->getName()."
+		$tmp.=($i+1).". +".$ary->getAt($i)->getId().": ".$ary->getAt($i)->getName()."
 $config::LQFB_ROOT/initiative/show/".$ary->getAt($i)->getId().".html
 ";
 	}
@@ -102,10 +123,10 @@ Dein LiquidFeedback-Service-Skript
 }
 
 sub mail_revoked_initiative {my $initiative = shift;
-	send_mail("Liquid Feedback -- Initiative wurde zurueckgezogen",
+	send_mail("[LF TB ".$initiative->getArea()->getName()." ] Thema #".$initiative->getIssueId()." Initiative +".$initiative->getId()." wurde zurueckgezogen",
 qq(Hallo,
 
-Die zum Thema # ).$initiative->getIssueId().qq( zugehoerige Initiative mit dem Namen
+Die zum Thema #).$initiative->getIssueId().qq( zugehoerige Initiative +).$initiative->getId().qq( mit dem Namen
 ).$initiative->getName().qq(
 wurde vom Initiator zurueckgezogen.
 
@@ -118,7 +139,7 @@ Dein LiquidFeedback-Service-Skript
 }
 
 sub mail_changed_initiative {my $initiative = shift;
-	send_mail("Liquid Feedback -- Initiative wurde geaendert",
+	send_mail("[LF TB ".$initiative->getArea()->getName()." ] Thema #".$initiative->getIssueId()." Initiative +".$initiative->getId()." wurde geaendert",
 qq(Hallo,
 
 Der Entwurfstext der Initiative
