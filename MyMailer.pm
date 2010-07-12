@@ -17,6 +17,7 @@ sub send_mail {my ($subject, $body) = @_;
 			$smtp->mail($absender);
 			$smtp->to($reci);
 			$smtp->data();
+			$smtp->datasend("Content-Type: text/plain; charset=utf-8\n");
 			$smtp->datasend("To: $reci\n");
 			$smtp->datasend("From: LiquidFeedback Service<$absender>\n");
 			$smtp->datasend("Subject: $subject\n");
@@ -145,7 +146,7 @@ qq(Hallo,
 
 Der Entwurfstext der Initiative
 ).$initiative->getName().qq(
-hat wurde vom Initiator bearbeitet. 
+wurde vom Initiator bearbeitet. 
 
 -----------------------------------------------------------
 Diff des neuen Entwurfs:
@@ -157,6 +158,11 @@ Der neue Entwurfstext lautet:
 
 Zum Betrachten der neuen Initiative bitte hier klicken:
 $config::LQFB_ROOT/initiative/show/).$initiative->getId().qq(.html
+).(!$initiative->hasDiscussion() ? ''
+:qq(
+Diskussion zur Initiative unter
+).$initiative->getDiscussionUrl().qq(
+)).qq(
 
 Mit freundlichen Gruessen
 Dein LiquidFeedback-Service-Skript

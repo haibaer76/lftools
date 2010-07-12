@@ -34,9 +34,6 @@ if ($after_action ne '' && $after_action ne 'summary') {
 
 my $browser = LWP::UserAgent->new;
 my $xml_file = $browser->get("$config::LQFB_ROOT/api/initiative.html?key=$config::LQFB_API_KEY&min_id=$minid");
-open (BLUBB, ">affe.xml");
-print BLUBB $xml_file->content;
-close(BLUBB);
 my $xml_doc = new XML::EasyOBJ(-type => 'string', -param=>$xml_file->content);
 my @all_initiatives = $xml_doc->getElement('initiative');
 my $parsed_initiatives = new CArray;
